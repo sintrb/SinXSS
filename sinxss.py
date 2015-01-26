@@ -78,12 +78,14 @@ class SinXSS(object):
 					href = urlparse.urljoin(url, href)
 				if not self.urlmatch(href):
 					continue
-				self.add_url(href)
+				try:
+					self.add_url(href)
+				except UnicodeEncodeError:
+					pass
 			injs = self.can_inject(url)
 			if injs:
 				print '------->%s of %s'%(injs, url)
 		else:
-			# print '%s fail'%url
 			pass
 
 	def start_scan(self):
@@ -93,9 +95,12 @@ class SinXSS(object):
 
 
 
-xss = SinXSS(urlmatch=re.compile(r'http://').match, urlmax=20)
-# xss.add_url('http://172.16.0.170:9999/')
-xss.add_url('http://my.csdn.net/')
-xss.start_scan()
+if __name__ == '__main__':
+	import sys
+	xss = SinXSS(urlmatch=re.compile(r'.*/.*').match, urlmax=20)
+	for v in sys.argv[1:]:
+		print 'add: %s'%v
+		xss.add_url(v)
+	xss.start_scan()
 
 
